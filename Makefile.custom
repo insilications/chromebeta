@@ -1,0 +1,32 @@
+CURRDIR:=$(shell pwd)
+FILE = $(eval export FILE:=$(shell find . -maxdepth 1 | sort -r | grep --max-count=1 -oP 'chromebeta-(\d+)(\.\d+)+\.tar\.gz'))
+SETVERSION = $(eval export SETVERSION:=$(shell find . -maxdepth 1 | sort -r | grep --max-count=1 -oP '(?<=chromebeta-)(\d+)(\.\d+)+'))
+NEWURL = $(eval export NEWURL:=file://$(CURRDIR)/$(FILE))
+
+download:
+	-@rm chromebeta*\.tar.gz; \
+	mkdir chromebeta; \
+	curl --location https://raw.githubusercontent.com/insilications/chromebeta-clr/master/CMakeLists.txt -o chromebeta/CMakeLists.txt; \
+	curl --location https://raw.githubusercontent.com/insilications/chromebeta-clr/master/download.bash -o chromebeta/download.bash && chmod +x chromebeta/download.bash; \
+	pushd chromebeta/ && ./download.bash && popd;
+
+preautospec-checks: download
+	$(FILE)
+	$(SETVERSION)
+	$(NEWURL)
+	-@rm -rf chromebeta/
+	-@rm chromebeta*\.tar.gz
+
+preautospecnew-checks: download
+	$(FILE)
+	$(SETVERSION)
+	$(NEWURL)
+	-@rm -rf chromebeta/
+	-@rm chromebeta*\.tar.gz
+
+prebuild-checks: download
+	$(FILE)
+	$(SETVERSION)
+	$(NEWURL)
+	-@rm -rf chromebeta/
+	-@rm chromebeta*\.tar.gz
